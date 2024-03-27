@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-
 /** IMPORT: MODEL */
 import User from "../models/User.js";
 
@@ -14,19 +12,29 @@ export const register = async (req, res) => {
 
   const user = await User.create({ name, email, password });
 
-  const token = jwt.sign(
-    { userId: user._id, name: user.name },
-    process.env.JWT_SECRET,
-    { expiresIn: "30d" }
-  );
-
   res.status(201).json({
     message: "User registered successfully",
-    user: { name: user.getName() },
-    token,
+    user: { name: user.name },
+    token: user.accessToken(),
   });
 };
 
 export const login = async (req, res) => {
-  res.send("Login Route");
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res.status(400).json({ message: "All fields are required" });
+
+  const user = await User.findOne({ email });
+
+  if (!user) return res.status(400).json({ message: "Invalid Credentials" });
+
+  const isPasswordMatch = await user.comparePassword(password);
+
+  if (!isPasswordMatch)
+    return res.status(400).json({ message: "Invalid Credentials" });
+
+  res
+    .status(200)
+    .json({ message: "Login Successful", token: user.accessToken() });
 };
