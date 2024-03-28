@@ -8,6 +8,6 @@ import verifyToken from "../middleware/verifyToken.js";
 const router = Router();
 
 router.use("/auth", authRoute);
-router.use("/jobs", verifyToken, jobRoute);
+router.use("/jobs", jobRoute);
 
 export default router;
