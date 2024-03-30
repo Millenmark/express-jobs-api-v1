@@ -2,19 +2,34 @@
 import User from "../models/User.js";
 
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, middleName, lastName, location, email, password } =
+    req.body;
 
-  if (!name || !email || !password)
+  if (
+    !firstName ||
+    !middleName ||
+    !lastName ||
+    !location ||
+    !email ||
+    !password
+  )
     return res.status(400).json({ message: "All fields are required" });
 
   if (await User.findOne({ email }))
     return res.status(400).json({ message: "Email is already been used" });
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({
+    firstName,
+    middleName,
+    lastName,
+    location,
+    email,
+    password,
+  });
 
   res.status(201).json({
     message: "User registered successfully",
-    user: { name: user.name },
+    user,
     token: user.accessToken(),
   });
 };
